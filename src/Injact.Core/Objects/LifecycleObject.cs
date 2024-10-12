@@ -5,11 +5,11 @@ public abstract class LifecycleObject : ILifecycleObject
     //ReSharper disable once ConvertToConstant.Local
     //This will be set to true by the dependency injection container
     private readonly bool _shouldRunUpdate = false;
-    private bool _isEnabled;
+    private bool isEnabled;
 
     public bool IsEnabled
     {
-        get => _isEnabled;
+        get => isEnabled;
         set => OnEnabledChanged(value);
     }
 
@@ -39,16 +39,16 @@ public abstract class LifecycleObject : ILifecycleObject
         IsEnabled = false;
     }
 
-    private void OnEnabledChanged(bool value)
+    protected virtual void OnEnabledChanged(bool value)
     {
-        if (_isEnabled == value)
+        if (isEnabled == value)
         {
             return;
         }
 
-        _isEnabled = value;
+        isEnabled = value;
 
-        if (_isEnabled)
+        if (isEnabled)
         {
             OnEnableEvent?.Invoke();
 

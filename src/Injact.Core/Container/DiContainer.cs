@@ -24,7 +24,6 @@ public class DiContainer : IDiContainer
     private const string ImmediateBindingWasCreatedMessage = "Immediate binding for type \"{0}\" was created.";
 
     private readonly ILogger _logger;
-    private readonly IProfiler _profiler;
     private readonly ContainerOptions _containerOptions;
     private readonly Injector _injector;
     private readonly Validator _validator;
@@ -47,7 +46,6 @@ public class DiContainer : IDiContainer
     public DiContainer(ContainerOptions containerOptions)
     {
         _logger = containerOptions.LoggingProvider.GetLogger<DiContainer>(containerOptions);
-        _profiler = new Profiler(_logger);
         _containerOptions = containerOptions;
         _injector = new Injector(this);
         _validator = new Validator(
@@ -66,7 +64,7 @@ public class DiContainer : IDiContainer
             .AsSingleton();
 
         Bind<IProfiler>()
-            .FromInstance(_profiler);
+            .FromInstance(new Profiler(_logger));
 
         _logger.LogInformation("Dependency injection container initialised.");
     }
@@ -254,23 +252,20 @@ public class DiContainer : IDiContainer
     }
 
     /// <inheritdoc />
-    public object Create(Type requestedType, bool deferInitialisation = false)
-    {
-        return CreateInternal(requestedType, deferInitialisation, Array.Empty<object>())
-               ?? throw new DependencyException(string.Format(CreateFailedErrorMessage, requestedType.Name));
-    }
-
-    /// <inheritdoc />
     public object Create(Type requestedType, params object[] arguments)
     {
-        return CreateInternal(requestedType, false, arguments)
+        return CreateInternal(requestedType, false, false, arguments)
                ?? throw new DependencyException(string.Format(CreateFailedErrorMessage, requestedType.Name));
     }
 
     /// <inheritdoc />
-    public object Create(Type requestedType, bool deferInitialisation, params object[] arguments)
+    public object Create(
+        Type requestedType,
+        bool deferInitialisation = false,
+        bool throwOnNotFound = false,
+        params object[] arguments)
     {
-        return CreateInternal(requestedType, deferInitialisation, arguments)
+        return CreateInternal(requestedType, deferInitialisation, throwOnNotFound, arguments)
                ?? throw new DependencyException(string.Format(CreateFailedErrorMessage, requestedType.Name));
     }
 
@@ -328,7 +323,7 @@ public class DiContainer : IDiContainer
         return new FactoryBindingBuilder(binding);
     }
 
-    private TInterface? ResolveInternal<TInterface>(Type requestedType, Type requestingType)
+    private TInterface? ResolveInternal<TInterface>(Type requestedType, Type requestingType, bool throwOnNotFound = true)
         where TInterface : class
     {
         Guard.Against.CircularInjection(
@@ -338,11 +333,11 @@ public class DiContainer : IDiContainer
             Array.Empty<object>());
 
         return !requestedType.IsAssignableTo(typeof(IFactory))
-            ? ResolveObject<TInterface>(requestedType, requestingType)
+            ? ResolveObject<TInterface>(requestedType, requestingType, throwOnNotFound)
             : ResolveFactory<TInterface>(requestedType, requestingType);
     }
 
-    private TInterface? ResolveObject<TInterface>(Type requestedType, Type requestingType)
+    private TInterface? ResolveObject<TInterface>(Type requestedType, Type requestingType, bool throwOnNotFound)
         where TInterface : class
     {
         OnResolve();
@@ -380,7 +375,7 @@ public class DiContainer : IDiContainer
                 return Guard.Against.Null(binding.Instance as TInterface);
             }
 
-            var created = CreateInternal(binding.ConcreteType, false);
+            var created = CreateInternal(binding.ConcreteType, false, throwOnNotFound);
             if (created == null)
             {
                 return default;
@@ -441,7 +436,7 @@ public class DiContainer : IDiContainer
 
     private void TryProcessImmediateObjectBinding(ObjectBinding binding)
     {
-        var canCreateObject = _validator.CanCreate(binding.ConcreteType);
+        var canCreateObject = _validator.CanCreate(binding.ConcreteType, false);
         if (!canCreateObject)
         {
             _objectBindings.Remove(binding.InterfaceType);
@@ -450,7 +445,7 @@ public class DiContainer : IDiContainer
             return;
         }
 
-        var created = CreateInternal(binding.ConcreteType, false);
+        var created = CreateInternal(binding.ConcreteType, false, false);
         if (created == null)
         {
             _objectBindings.Remove(binding.InterfaceType);
@@ -463,12 +458,12 @@ public class DiContainer : IDiContainer
         _logger.LogInformation(string.Format(ImmediateBindingWasCreatedMessage, binding.InterfaceType));
     }
 
-    private object? CreateInternal(Type requestedType, bool deferInitialisation, params object[] arguments)
+    private object? CreateInternal(Type requestedType, bool deferInitialisation, bool throwOnNotFound, params object[] arguments)
     {
         Guard.Against.Condition(requestedType.IsInterface, CannotCreateInterfaceInstanceErrorMessage);
         Guard.Against.CircularInjection(_containerOptions, _objectBindings, requestedType, arguments);
 
-        if (!_validator.CanCreate(requestedType))
+        if (!_validator.CanCreate(requestedType, throwOnNotFound))
         {
             return null;
         }
@@ -478,7 +473,7 @@ public class DiContainer : IDiContainer
 
         foreach (var parameter in missingParameters)
         {
-            var dependencyResult = _validator.CanCreate(parameter.Key.ParameterType);
+            var dependencyResult = _validator.CanCreate(parameter.Key.ParameterType, throwOnNotFound);
             if (!dependencyResult)
             {
                 return null;

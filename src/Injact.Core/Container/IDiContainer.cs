@@ -111,17 +111,6 @@ public interface IDiContainer
     /// Create a new instance of a type.
     /// </summary>
     /// <param name="requestedType">The type to be created.</param>
-    /// <param name="deferInitialisation">
-    /// If true and the object implements <see cref="ILifecycleObject"/>, the container will
-    /// not call Awake or Start.
-    /// </param>
-    /// <remarks>It's recommended to use a factory instead of calling this method directly.</remarks>
-    public object Create(Type requestedType, bool deferInitialisation = false);
-
-    /// <summary>
-    /// Create a new instance of a type.
-    /// </summary>
-    /// <param name="requestedType">The type to be created.</param>
     /// <param name="arguments">Arguments to be passed to the constructor of the created object.</param>
     /// <remarks>It's recommended to use a factory instead of calling this method directly.</remarks>
     public object Create(Type requestedType, params object[] arguments);
@@ -132,9 +121,14 @@ public interface IDiContainer
     /// <param name="requestedType">The type to be created.</param>
     /// <param name="deferInitialisation">
     /// If true and the object implements <see cref="ILifecycleObject"/>, the container will
-    /// not call Awake, Start or Enable.
+    /// not call Awake or Start.
     /// </param>
+    /// <param name="throwOnNotFound">If true, an exception will be thrown if the type is unable to be created.</param>
     /// <param name="arguments">Arguments to be passed to the constructor of the created object.</param>
     /// <remarks>It's recommended to use a factory instead of calling this method directly.</remarks>
-    public object Create(Type requestedType, bool deferInitialisation, params object[] arguments);
+    public object Create(
+        Type requestedType,
+        bool deferInitialisation = false,
+        bool throwOnNotFound = false,
+        params object[] arguments);
 }

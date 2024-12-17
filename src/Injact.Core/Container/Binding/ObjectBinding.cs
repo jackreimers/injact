@@ -1,8 +1,8 @@
-namespace Injact.Container.Binding;
+namespace Injact.Core.Container.Binding;
 
-public class ObjectBinding
+public class ObjectBinding : IBinding
 {
-    private const string BindingLockedSingletonErrorMessage = "Cannot change singleton setting after binding has been locked.";
+    private const string BindingLockedSingletonMessage = "Cannot change singleton setting after binding has been locked.";
 
     private bool isSingleton;
     private object? instance;
@@ -57,7 +57,7 @@ public class ObjectBinding
             return;
         }
 
-        Guard.Against.Condition(IsLocked, BindingLockedSingletonErrorMessage);
+        Guard.Against.Condition(IsLocked, BindingLockedSingletonMessage);
         isSingleton = value;
 
         if (instance != null)
@@ -73,7 +73,7 @@ public class ObjectBinding
             return;
         }
 
-        Guard.Against.Condition(IsLocked, BindingLockedSingletonErrorMessage);
+        Guard.Against.Condition(IsLocked, BindingLockedSingletonMessage);
         isSingleton = true;
         instance = value;
 

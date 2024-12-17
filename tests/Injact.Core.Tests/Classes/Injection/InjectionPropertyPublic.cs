@@ -1,3 +1,5 @@
+using Injact.Core.Container.Attributes;
+
 namespace Injact.Tests.Classes;
 
 public class InjectionPropertyPublic

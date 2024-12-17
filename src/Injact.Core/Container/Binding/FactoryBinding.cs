@@ -1,6 +1,6 @@
-namespace Injact.Container.Binding;
+namespace Injact.Core.Container.Binding;
 
-public class FactoryBinding
+public class FactoryBinding : IBinding
 {
     public Type InterfaceType { get; }
     public Type ConcreteType { get; }

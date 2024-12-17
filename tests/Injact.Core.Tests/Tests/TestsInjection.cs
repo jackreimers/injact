@@ -1,4 +1,8 @@
-﻿namespace Injact.Tests;
+﻿using Injact.Core.Container;
+using Injact.Core.Container.Components;
+using Injact.Core.Container.Exceptions;
+
+namespace Injact.Tests;
 
 public class TestsInjection
 {
@@ -27,7 +31,7 @@ public class TestsInjection
         container.Bind<Interface1, Class1>();
 
         var instance = new InjectionFieldReadonlyPublic();
-        var injector = container.Resolve<Injector>(typeof(Consumer));
+        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -46,7 +50,7 @@ public class TestsInjection
         container.Bind<Interface1, Class1>();
 
         var instance = new InjectionFieldReadonlyProtected();
-        var injector = container.Resolve<Injector>(typeof(Consumer));
+        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -65,7 +69,7 @@ public class TestsInjection
         container.Bind<Interface1, Class1>();
 
         var instance = new InjectionFieldReadonlyPrivate();
-        var injector = container.Resolve<Injector>(typeof(Consumer));
+        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -86,7 +90,7 @@ public class TestsInjection
         container.Bind<Interface1, Class1>();
 
         var instance = new InjectionPropertyPublic();
-        var injector = container.Resolve<Injector>(typeof(Consumer));
+        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -105,7 +109,7 @@ public class TestsInjection
         container.Bind<Interface1, Class1>();
 
         var instance = new InjectionMethodPublic();
-        var injector = container.Resolve<Injector>(typeof(Consumer));
+        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -124,7 +128,7 @@ public class TestsInjection
         container.Bind<Interface1, Class1>();
 
         var instance = new InjectionMethodProtected();
-        var injector = container.Resolve<Injector>(typeof(Consumer));
+        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -143,7 +147,7 @@ public class TestsInjection
         container.Bind<Interface1, Class1>();
 
         var instance = new InjectionMethodPrivate();
-        var injector = container.Resolve<Injector>(typeof(Consumer));
+        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 

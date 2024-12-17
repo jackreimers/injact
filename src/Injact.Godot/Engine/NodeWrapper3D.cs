@@ -5,7 +5,7 @@
 public abstract partial class NodeWrapper3D<T> : Node3D
     where T : class, ILifecycleObject, IPhysicalObject, new()
 {
-    [Inject] private readonly Injector _injector = null!;
+    [Inject] private readonly IDependencyInjector _injector = null!;
     [Inject] private readonly EditorValueMapper _editorValueMapper = null!;
 
     public T Value { get; set; } = null!;

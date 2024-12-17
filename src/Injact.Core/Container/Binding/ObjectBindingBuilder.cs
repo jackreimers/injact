@@ -1,4 +1,4 @@
-namespace Injact.Container.Binding;
+namespace Injact.Core.Container.Binding;
 
 public class ObjectBindingBuilder
 {
@@ -7,6 +7,13 @@ public class ObjectBindingBuilder
     public ObjectBindingBuilder(ObjectBinding binding)
     {
         _binding = binding;
+    }
+
+    [Obsolete("WithType is redundant and will be removed in the future.")]
+    public ObjectBindingBuilder WithType<TInterface, TConcrete>()
+        where TConcrete : class, TInterface
+    {
+        return this;
     }
 
     public ObjectBindingBuilder FromInstance(object value)
@@ -21,9 +28,21 @@ public class ObjectBindingBuilder
         return this;
     }
 
+    [Obsolete("AsTransient is redundant and will be removed in the future.")]
+    public ObjectBindingBuilder AsTransient()
+    {
+        return this;
+    }
+
     public ObjectBindingBuilder Immediate()
     {
         _binding.IsImmediate = true;
+        return this;
+    }
+
+    [Obsolete("Delayed is redundant and will be removed in the future.")]
+    public ObjectBindingBuilder Delayed()
+    {
         return this;
     }
 
@@ -38,4 +57,7 @@ public class ObjectBindingBuilder
         _binding.AllowedInjectionTypes.AddRange(value);
         return this;
     }
+
+    [Obsolete("Calling finalise is no longer required.")]
+    public void Finalise() { }
 }

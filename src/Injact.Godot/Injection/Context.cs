@@ -1,26 +1,35 @@
-﻿using Time = Injact.Spatial.Time;
+﻿using Time = Injact.Core.State.Time.Time;
 
 namespace Injact.Godot;
 
+/// <summary>
+/// The context is the root of the dependency injection system, it handles initialisation of the container.
+/// </summary>
 public partial class Context : Node
 {
+    private const string InstallingBindingsMessage = "Installing bindings for {0}.";
+    private const string SearchForInstallersMessage = "Search for installers is enabled, user set installers will be ignored.";
+    private const string SearchForNodesMessage = "Search for nodes is enabled, user set nodes will be ignored.";
+    private const string InstallersNotFoundInSceneMessage = "Could not find any node installers in scene.";
+
     [Inject] private readonly ILogger _logger = null!;
 
-    [ExportCategory("Initialisation")] [Export]
-    private bool searchForNodes = true;
+    [ExportCategory("Initialisation")]
+    [Export] private bool searchForNodes = true;
     [Export] private bool searchForInstallers = true;
 
-    [ExportCategory("References")] [Export]
-    private Node[] injectTargets = Array.Empty<Node>();
+    [ExportCategory("References")]
+    [Export] private Node[] injectTargets = Array.Empty<Node>();
     [Export] private NodeInstaller[] installers = Array.Empty<NodeInstaller>();
 
-    [ExportCategory("Logging")] [Export] private LoggingLevel loggingLevel = LoggingLevel.Information;
+    [ExportCategory("Logging")]
+    [Export] private LoggingLevel loggingLevel = LoggingLevel.Information;
     [Export] private bool logDebugging = true;
     [Export] private bool logTracing = true;
 
     private DiContainer _container = null!;
     private ContainerOptions? _containerOptions;
-    private Injector _injector = null!;
+    private DependencyInjector _injector = null!;
 
     private Node[]? nodeBuffer;
     private IInstaller[] nativeInstallers = Array.Empty<IInstaller>();
@@ -35,7 +44,7 @@ public partial class Context : Node
             LoggingProvider = new LoggingProvider()
         });
 
-        _injector = _container.Resolve<Injector>(this);
+        _injector = _container.Resolve<DependencyInjector>(this);
         _injector.InjectInto(this);
 
         TrySearchForInstallers();
@@ -43,7 +52,7 @@ public partial class Context : Node
 
         foreach (var installer in nativeInstallers.Concat(installers))
         {
-            _logger.LogInformation($"Installing bindings for {installer.GetType().Name}.");
+            _logger.LogInformation(string.Format(InstallingBindingsMessage, installer.GetType().Name));
             _injector.InjectInto(installer);
 
             installer.InstallBindings();
@@ -81,15 +90,15 @@ public partial class Context : Node
             return;
         }
 
-        _logger.LogWarning("Search for installers is enabled, user set installers will be ignored.", installers.Any());
+        _logger.LogWarning(SearchForInstallersMessage, installers.Any());
 
-        nodeBuffer ??= GodotHelper.GetAllChildNodes(GetTree().Root);
+        nodeBuffer ??= GodotHelpers.GetAllChildNodes(GetTree().Root);
         installers = nodeBuffer
             .Where(s => s is NodeInstaller)
             .Cast<NodeInstaller>()
             .ToArray();
 
-        _logger.LogWarning("Could not find any node installers in scene.", !installers.Any());
+        _logger.LogWarning(InstallersNotFoundInSceneMessage, !installers.Any());
     }
 
     private void TryResolveAllInScene()
@@ -99,9 +108,9 @@ public partial class Context : Node
             return;
         }
 
-        _logger.LogWarning("Search for nodes is enabled, user set nodes will be ignored.", injectTargets.Any());
+        _logger.LogWarning(SearchForNodesMessage, injectTargets.Any());
 
-        nodeBuffer ??= GodotHelper.GetAllChildNodes(GetTree().Root);
+        nodeBuffer ??= GodotHelpers.GetAllChildNodes(GetTree().Root);
         injectTargets = nodeBuffer;
     }
 }

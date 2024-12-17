@@ -1,4 +1,4 @@
-namespace Injact.Container;
+namespace Injact.Core.Container;
 
 public interface IDiContainer
 {

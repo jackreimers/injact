@@ -5,7 +5,7 @@ namespace Injact.Godot;
 public abstract partial class NodeWrapper<T> : Node
     where T : class, ILifecycleObject, new()
 {
-    [Inject] private readonly Injector _injector = null!;
+    [Inject] private readonly IDependencyInjector _injector = null!;
     [Inject] private readonly EditorValueMapper _editorValueMapper = null!;
 
     public T Value { get; set; } = null!;

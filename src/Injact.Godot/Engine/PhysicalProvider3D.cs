@@ -1,4 +1,4 @@
-﻿using NativeVector3 = Injact.Spatial.Vector3;
+﻿using NativeVector3 = Injact.Core.State.Vectors.Vector3;
 using EngineVector3 = Godot.Vector3;
 
 namespace Injact.Godot;

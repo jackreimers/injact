@@ -1,4 +1,4 @@
-namespace Injact.Container.Configuration;
+namespace Injact.Core.Container.Configuration;
 
 public enum LoggingLevel
 {

@@ -1,4 +1,4 @@
-namespace Injact.Container;
+namespace Injact.Core.Container;
 
 public class ObjectBindings : Dictionary<Type, ObjectBinding> { }
 
@@ -6,27 +6,23 @@ public class FactoryBindings : Dictionary<Type, FactoryBinding> { }
 
 public class DiContainer : IDiContainer
 {
-    private const string TypeAlreadyBoundErrorMessage = "Type \"{0}\" is already bound.";
-    private const string ObjectCannotBeBoundErrorMessage = "Cannot bind type \"{0}\" as factory.";
-    private const string FactoryCannotBeBoundErrorMessage = "Cannot bind factory \"{0}\" as object.";
-    private const string TwoOrMoreImplementationsErrorMessage = "\"{0}\" is implemented by two or more provided arguments and will be ignored.";
-    private const string DuplicateArgumentTypesErrorMessage = "Cannot pass duplicate argument types to create method.";
-
-    private const string ResolveFailedForTypeErrorMessage = "Failed to resolve type \"{0}\".";
-    private const string CreateFailedErrorMessage = "Failed to create type \"{0}\".";
-    private const string CannotCreateInterfaceInstanceErrorMessage = "Cannot create an instance of an interface.";
-
-    private const string JsonNoFileFoundErrorMessage = "No JSON file found at \"{0}\".";
-    private const string JsonNoSectionFoundErrorMessage = "Section \"{0}\" not found in JSON file.";
-    private const string JsonNoOptionsFoundForSectionErrorMessage = "No options found for section \"{0}\".";
-    private const string JsonNoOptionsLoadedForSectionErrorMessage = "Failed to load options for section \"{0}\".";
-
+    private const string TypeAlreadyBoundMessage = "Type \"{0}\" is already bound.";
+    private const string ObjectCannotBeBoundMessage = "Cannot bind type \"{0}\" as factory.";
+    private const string FactoryCannotBeBoundMessage = "Cannot bind factory \"{0}\" as object.";
+    private const string TwoOrMoreImplementationsMessage = "\"{0}\" is implemented by two or more provided arguments and will be ignored.";
+    private const string DuplicateArgumentTypesMessage = "Cannot pass duplicate argument types to create method.";
+    private const string ResolveFailedForTypeMessage = "Failed to resolve type \"{0}\".";
+    private const string CreateFailedMessage = "Failed to create type \"{0}\".";
+    private const string JsonNoFileFoundMessage = "No JSON file found at \"{0}\".";
+    private const string JsonNoSectionFoundMessage = "Section \"{0}\" not found in JSON file.";
+    private const string JsonNoOptionsFoundForSectionMessage = "No options found for section \"{0}\".";
+    private const string JsonNoOptionsLoadedForSectionMessage = "Failed to load options for section \"{0}\".";
     private const string ImmediateBindingWasCreatedMessage = "Immediate binding for type \"{0}\" was created.";
 
     private readonly ILogger _logger;
     private readonly ContainerOptions _containerOptions;
-    private readonly Injector _injector;
-    private readonly Validator _validator;
+    private readonly DependencyInjector _injector;
+    private readonly DependencyValidator _validator;
     private readonly ObjectBindings _objectBindings = new();
     private readonly ObjectBindings _deferredBindings = new();
     private readonly FactoryBindings _factoryBindings = new();
@@ -47,17 +43,17 @@ public class DiContainer : IDiContainer
     {
         _logger = containerOptions.LoggingProvider.GetLogger<DiContainer>(containerOptions);
         _containerOptions = containerOptions;
-        _injector = new Injector(this);
-        _validator = new Validator(
+        _injector = new DependencyInjector(this);
+        _validator = new DependencyValidator(
             _logger,
             _containerOptions,
             _objectBindings,
             _factoryBindings);
 
-        Bind<DiContainer>()
+        Bind<IDiContainer, DiContainer>()
             .FromInstance(this);
 
-        Bind<Injector>()
+        Bind<IDependencyInjector, DependencyInjector>()
             .FromInstance(_injector);
 
         Bind<EditorValueMapper>()
@@ -105,7 +101,7 @@ public class DiContainer : IDiContainer
         var resolved = ResolveInternal<TInterface>(typeof(TInterface), requestingType);
         if (resolved == null)
         {
-            throw new DependencyException(string.Format(ResolveFailedForTypeErrorMessage, typeof(TInterface)));
+            throw new DependencyException(string.Format(ResolveFailedForTypeMessage, typeof(TInterface)));
         }
 
         return resolved;
@@ -118,7 +114,7 @@ public class DiContainer : IDiContainer
         var resolved = ResolveInternal<TInterface>(typeof(TInterface), requestingType);
         if (resolved == null && throwOnNotFound)
         {
-            throw new DependencyException(string.Format(ResolveFailedForTypeErrorMessage, typeof(TInterface)));
+            throw new DependencyException(string.Format(ResolveFailedForTypeMessage, typeof(TInterface)));
         }
 
         return resolved;
@@ -131,7 +127,7 @@ public class DiContainer : IDiContainer
         var resolved = ResolveInternal<TInterface>(typeof(TInterface), requestingObject.GetType());
         if (resolved == null)
         {
-            throw new DependencyException(string.Format(ResolveFailedForTypeErrorMessage, typeof(TInterface)));
+            throw new DependencyException(string.Format(ResolveFailedForTypeMessage, typeof(TInterface)));
         }
 
         return resolved;
@@ -144,7 +140,7 @@ public class DiContainer : IDiContainer
         var resolved = ResolveInternal<TInterface>(typeof(TInterface), requestingObject.GetType());
         if (resolved == null && throwOnNotFound)
         {
-            throw new DependencyException(string.Format(ResolveFailedForTypeErrorMessage, typeof(TInterface)));
+            throw new DependencyException(string.Format(ResolveFailedForTypeMessage, typeof(TInterface)));
         }
 
         return resolved;
@@ -156,7 +152,7 @@ public class DiContainer : IDiContainer
         var resolved = ResolveInternal<object>(requestedType, requestingType);
         if (resolved == null)
         {
-            throw new DependencyException(string.Format(ResolveFailedForTypeErrorMessage, requestedType));
+            throw new DependencyException(string.Format(ResolveFailedForTypeMessage, requestedType));
         }
 
         return resolved;
@@ -168,7 +164,7 @@ public class DiContainer : IDiContainer
         var resolved = ResolveInternal<object>(requestedType, requestingType);
         if (resolved == null && throwOnNotFound)
         {
-            throw new DependencyException(string.Format(ResolveFailedForTypeErrorMessage, requestedType));
+            throw new DependencyException(string.Format(ResolveFailedForTypeMessage, requestedType));
         }
 
         return resolved;
@@ -180,7 +176,7 @@ public class DiContainer : IDiContainer
         var resolved = ResolveInternal<object>(requestedType, requestingObject.GetType());
         if (resolved == null)
         {
-            throw new DependencyException(string.Format(ResolveFailedForTypeErrorMessage, requestedType));
+            throw new DependencyException(string.Format(ResolveFailedForTypeMessage, requestedType));
         }
 
         return resolved;
@@ -192,7 +188,7 @@ public class DiContainer : IDiContainer
         var resolved = ResolveInternal<object>(requestedType, requestingObject.GetType());
         if (resolved == null && throwOnNotFound)
         {
-            throw new DependencyException(string.Format(ResolveFailedForTypeErrorMessage, requestedType));
+            throw new DependencyException(string.Format(ResolveFailedForTypeMessage, requestedType));
         }
 
         return resolved;
@@ -208,7 +204,7 @@ public class DiContainer : IDiContainer
 
         if (!File.Exists(appsettingsPath))
         {
-            throw new OptionsExeption(string.Format(JsonNoFileFoundErrorMessage, appsettingsPath));
+            throw new OptionsExeption(string.Format(JsonNoFileFoundMessage, appsettingsPath));
         }
 
         try
@@ -224,7 +220,7 @@ public class DiContainer : IDiContainer
                 {
                     if (!value.TryGetProperty(property, out var next))
                     {
-                        throw new OptionsExeption(string.Format(JsonNoSectionFoundErrorMessage, section));
+                        throw new OptionsExeption(string.Format(JsonNoSectionFoundMessage, section));
                     }
 
                     value = next;
@@ -235,7 +231,7 @@ public class DiContainer : IDiContainer
             var options = value.Deserialize<T>();
             if (options == null)
             {
-                throw new OptionsExeption(string.Format(JsonNoOptionsFoundForSectionErrorMessage, section));
+                throw new OptionsExeption(string.Format(JsonNoOptionsFoundForSectionMessage, section));
             }
 
             Bind<IOptions<T>>()
@@ -246,7 +242,7 @@ public class DiContainer : IDiContainer
         catch (Exception exception)
         {
             throw new OptionsExeption(
-                string.Format(JsonNoOptionsLoadedForSectionErrorMessage, section),
+                string.Format(JsonNoOptionsLoadedForSectionMessage, section),
                 exception);
         }
     }
@@ -255,7 +251,7 @@ public class DiContainer : IDiContainer
     public object Create(Type requestedType, params object[] arguments)
     {
         return CreateInternal(requestedType, false, false, arguments)
-               ?? throw new DependencyException(string.Format(CreateFailedErrorMessage, requestedType.Name));
+               ?? throw new DependencyException(string.Format(CreateFailedMessage, requestedType.Name));
     }
 
     /// <inheritdoc />
@@ -266,7 +262,7 @@ public class DiContainer : IDiContainer
         params object[] arguments)
     {
         return CreateInternal(requestedType, deferInitialisation, throwOnNotFound, arguments)
-               ?? throw new DependencyException(string.Format(CreateFailedErrorMessage, requestedType.Name));
+               ?? throw new DependencyException(string.Format(CreateFailedMessage, requestedType.Name));
     }
 
     private ObjectBindingBuilder BindObjectInternal<TInterface, TConcrete>()
@@ -274,13 +270,13 @@ public class DiContainer : IDiContainer
     {
         Guard.Against.Condition(
             _objectBindings.ContainsKey(typeof(TInterface)),
-            string.Format(TypeAlreadyBoundErrorMessage, typeof(TInterface)));
+            string.Format(TypeAlreadyBoundMessage, typeof(TInterface)));
 
         Guard.Against.Assignable<TInterface, IFactory>(
-            string.Format(FactoryCannotBeBoundErrorMessage, typeof(TInterface)));
+            string.Format(FactoryCannotBeBoundMessage, typeof(TInterface)));
 
         Guard.Against.Assignable<TConcrete, IFactory>(
-            string.Format(ObjectCannotBeBoundErrorMessage, typeof(TConcrete)));
+            string.Format(ObjectCannotBeBoundMessage, typeof(TConcrete)));
 
         var binding = new ObjectBinding(typeof(TInterface), typeof(TConcrete));
         _objectBindings.Add(typeof(TInterface), binding);
@@ -300,15 +296,15 @@ public class DiContainer : IDiContainer
     {
         Guard.Against.Condition(
             _factoryBindings.ContainsKey(typeof(TInterface)),
-            string.Format(TypeAlreadyBoundErrorMessage, typeof(TInterface)));
+            string.Format(TypeAlreadyBoundMessage, typeof(TInterface)));
 
         Guard.Against.Condition(
             _factoryBindings.ContainsKey(typeof(TInterface)),
-            string.Format(TypeAlreadyBoundErrorMessage, typeof(TInterface)));
+            string.Format(TypeAlreadyBoundMessage, typeof(TInterface)));
 
         Guard.Against.Condition(
             _factoryBindings.ContainsKey(typeof(TFactory)),
-            string.Format(TypeAlreadyBoundErrorMessage, typeof(TFactory)));
+            string.Format(TypeAlreadyBoundMessage, typeof(TFactory)));
 
         var binding = new FactoryBinding(typeof(TInterface), typeof(TFactory), typeof(TObject));
         _factoryBindings.Add(typeof(TInterface), binding);
@@ -326,9 +322,7 @@ public class DiContainer : IDiContainer
     private TInterface? ResolveInternal<TInterface>(Type requestedType, Type requestingType, bool throwOnNotFound = true)
         where TInterface : class
     {
-        Guard.Against.CircularInjection(
-            _containerOptions,
-            _objectBindings,
+        _validator.CheckForCircularInjection(
             requestedType,
             Array.Empty<object>());
 
@@ -368,7 +362,7 @@ public class DiContainer : IDiContainer
 
         if (_objectBindings.TryGetValue(requestedType, out var binding))
         {
-            Guard.Against.IllegalInjection(binding, requestingType);
+            _validator.CheckForIllegalInjection(binding, requestingType);
 
             if (binding.Instance != null)
             {
@@ -389,7 +383,7 @@ public class DiContainer : IDiContainer
             return Guard.Against.Null(created as TInterface);
         }
 
-        return default;
+        return null;
     }
 
     private TInterface? ResolveFactory<TInterface>(Type requestedType, Type requestingType)
@@ -409,10 +403,10 @@ public class DiContainer : IDiContainer
 
         if (factoryBinding == null)
         {
-            return default;
+            return null;
         }
 
-        Guard.Against.IllegalInjection(factoryBinding, requestingType);
+        _validator.CheckForIllegalInjection(factoryBinding, requestingType);
         return Guard.Against.Null(Create(factoryBinding.ConcreteType) as TInterface);
     }
 
@@ -458,18 +452,22 @@ public class DiContainer : IDiContainer
         _logger.LogInformation(string.Format(ImmediateBindingWasCreatedMessage, binding.InterfaceType));
     }
 
-    private object? CreateInternal(Type requestedType, bool deferInitialisation, bool throwOnNotFound, params object[] arguments)
+    private object? CreateInternal(
+        Type requestedType,
+        bool deferInitialisation,
+        bool throwOnNotFound,
+        params object[] arguments)
     {
-        Guard.Against.Condition(requestedType.IsInterface, CannotCreateInterfaceInstanceErrorMessage);
-        Guard.Against.CircularInjection(_containerOptions, _objectBindings, requestedType, arguments);
-
+        _validator.CheckForCircularInjection(requestedType, arguments);
         if (!_validator.CanCreate(requestedType, throwOnNotFound))
         {
             return null;
         }
 
         var argumentResult = ValidateCreationArguments(requestedType, arguments);
-        var missingParameters = argumentResult.Parameters.Where(s => s.Value == null).ToArray();
+        var missingParameters = argumentResult.Parameters
+            .Where(s => s.Value == null)
+            .ToArray();
 
         foreach (var parameter in missingParameters)
         {
@@ -524,7 +522,7 @@ public class DiContainer : IDiContainer
 
         Guard.Against.Condition(
             arguments.Length != typedArguments.Count,
-            DuplicateArgumentTypesErrorMessage);
+            DuplicateArgumentTypesMessage);
 
         foreach (var type in typedArguments)
         {
@@ -538,7 +536,7 @@ public class DiContainer : IDiContainer
 
                 if (typedArgumentsWithInterfaces.ContainsKey(implemented))
                 {
-                    _logger.LogInformation(string.Format(TwoOrMoreImplementationsErrorMessage, implemented.Name));
+                    _logger.LogInformation(string.Format(TwoOrMoreImplementationsMessage, implemented.Name));
 
                     typedArgumentsWithInterfaces.Remove(implemented);
                     ignoredInterfaces.Add(implemented);

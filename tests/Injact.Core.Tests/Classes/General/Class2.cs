@@ -1,3 +1,3 @@
 namespace Injact.Tests.Classes;
 
-public class Class2 : Interface1 { }
+public class Class2 : IInterface { }

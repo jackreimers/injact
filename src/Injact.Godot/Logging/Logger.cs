@@ -1,4 +1,4 @@
-﻿namespace Injact.Godot;
+﻿namespace Injact.Godot.Logging;
 
 public class Logger<T> : ILogger
 {

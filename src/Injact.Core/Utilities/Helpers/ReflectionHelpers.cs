@@ -1,3 +1,5 @@
+//ReSharper disable MemberCanBePrivate.Global
+
 namespace Injact.Core.Utilities.Helpers;
 
 internal static class ReflectionHelpers

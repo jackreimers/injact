@@ -13,9 +13,9 @@ public abstract class LifecycleObject : ILifecycleObject
         set => OnEnabledChanged(value);
     }
 
-    public event Action? OnEnableEvent;
-    public event Action? OnDisableEvent;
-    public event Action? OnDestroyEvent;
+    public event Action<LifecycleObject>? OnEnableEvent;
+    public event Action<LifecycleObject>? OnDisableEvent;
+    public event Action<LifecycleObject>? OnDestroyEvent;
 
     public virtual void Awake() { }
 
@@ -25,8 +25,8 @@ public abstract class LifecycleObject : ILifecycleObject
 
     public virtual void Destroy()
     {
-        Time.Time.OnUpdateEvent -= Update;
-        OnDestroyEvent?.Invoke();
+        Time.OnUpdateEvent -= Update;
+        OnDestroyEvent?.Invoke(this);
     }
 
     public void Enable()
@@ -50,18 +50,18 @@ public abstract class LifecycleObject : ILifecycleObject
 
         if (isEnabled)
         {
-            OnEnableEvent?.Invoke();
+            OnEnableEvent?.Invoke(this);
 
             if (_shouldRunUpdate)
             {
-                Time.Time.OnUpdateEvent += Update;
+                Time.OnUpdateEvent += Update;
             }
         }
 
         else
         {
-            OnDisableEvent?.Invoke();
-            Time.Time.OnUpdateEvent -= Update;
+            OnDisableEvent?.Invoke(this);
+            Time.OnUpdateEvent -= Update;
         }
     }
 }

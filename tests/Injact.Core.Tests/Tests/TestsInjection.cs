@@ -1,8 +1,4 @@
-﻿using Injact.Core.Container;
-using Injact.Core.Container.Components;
-using Injact.Core.Container.Exceptions;
-
-namespace Injact.Tests;
+﻿namespace Injact.Tests;
 
 public class TestsInjection
 {
@@ -11,7 +7,7 @@ public class TestsInjection
     {
         var container = new DiContainer();
 
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
         container.Bind<Class2>();
         container.Bind<ConstructorInjection>();
 
@@ -28,10 +24,10 @@ public class TestsInjection
         var container = new DiContainer();
 
         container.Bind<Class2>();
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
 
         var instance = new InjectionFieldReadonlyPublic();
-        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
+        var injector = container.Resolve<Injector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -47,10 +43,10 @@ public class TestsInjection
         var container = new DiContainer();
 
         container.Bind<Class2>();
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
 
         var instance = new InjectionFieldReadonlyProtected();
-        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
+        var injector = container.Resolve<Injector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -66,10 +62,10 @@ public class TestsInjection
         var container = new DiContainer();
 
         container.Bind<Class2>();
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
 
         var instance = new InjectionFieldReadonlyPrivate();
-        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
+        var injector = container.Resolve<Injector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -87,10 +83,10 @@ public class TestsInjection
         var container = new DiContainer();
 
         container.Bind<Class2>();
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
 
         var instance = new InjectionPropertyPublic();
-        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
+        var injector = container.Resolve<Injector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -106,10 +102,10 @@ public class TestsInjection
         var container = new DiContainer();
 
         container.Bind<Class2>();
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
 
         var instance = new InjectionMethodPublic();
-        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
+        var injector = container.Resolve<Injector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -125,10 +121,10 @@ public class TestsInjection
         var container = new DiContainer();
 
         container.Bind<Class2>();
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
 
         var instance = new InjectionMethodProtected();
-        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
+        var injector = container.Resolve<Injector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -144,10 +140,10 @@ public class TestsInjection
         var container = new DiContainer();
 
         container.Bind<Class2>();
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
 
         var instance = new InjectionMethodPrivate();
-        var injector = container.Resolve<IDependencyInjector>(typeof(Consumer));
+        var injector = container.Resolve<Injector>(typeof(Consumer));
 
         Assert.NotNull(injector);
 
@@ -162,7 +158,7 @@ public class TestsInjection
     {
         var container = new DiContainer();
 
-        container.Bind<Interface1, Class1>().WhenInjectedInto<Class2>();
+        container.Bind<IInterface, Class1>().WhenInjectedInto<Class2>();
         container.Bind<ConstructorInjection>();
 
         Assert.Throws<DependencyException>(() =>

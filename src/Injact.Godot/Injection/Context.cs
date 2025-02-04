@@ -1,6 +1,6 @@
-﻿using Time = Injact.Core.State.Time.Time;
+﻿using Time = Injact.Core.State.Timing.Time;
 
-namespace Injact.Godot;
+namespace Injact.Godot.Injection;
 
 /// <summary>
 /// The context is the root of the dependency injection system, it handles initialisation of the container.
@@ -29,7 +29,7 @@ public partial class Context : Node
 
     private DiContainer _container = null!;
     private ContainerOptions? _containerOptions;
-    private DependencyInjector _injector = null!;
+    private Injector _injector = null!;
 
     private Node[]? nodeBuffer;
     private IInstaller[] nativeInstallers = Array.Empty<IInstaller>();
@@ -37,14 +37,16 @@ public partial class Context : Node
     public override void _EnterTree()
     {
         //Note that logging settings will not be updated at runtime
-        _container = new DiContainer(_containerOptions ?? new ContainerOptions
-        {
-            LoggingLevel = loggingLevel,
-            LogTracing = logTracing,
-            LoggingProvider = new LoggingProvider()
-        });
+        _container = new DiContainer(
+            _containerOptions ??
+            new ContainerOptions
+            {
+                LoggingLevel = loggingLevel,
+                LogTracing = logTracing,
+                LoggingProvider = new LoggingProvider()
+            });
 
-        _injector = _container.Resolve<DependencyInjector>(this);
+        _injector = _container.Resolve<Injector>(this);
         _injector.InjectInto(this);
 
         TrySearchForInstallers();

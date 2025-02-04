@@ -7,7 +7,10 @@ public class Profile : IDisposable
     private readonly bool _condition;
     private readonly Stopwatch _stopwatch = new();
 
-    public Profile(ILogger logger, string message, bool condition = true)
+    public Profile(
+        ILogger logger,
+        string message,
+        bool condition = true)
     {
         _logger = logger;
         _message = message;
@@ -18,6 +21,7 @@ public class Profile : IDisposable
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         Stop();
     }
 
@@ -27,7 +31,9 @@ public class Profile : IDisposable
 
         if (_condition)
         {
-            _logger.LogTrace(_message, new object[] { _stopwatch.ElapsedMilliseconds + "ms" });
+            _logger.LogTrace(
+                _message,
+                new object[] { _stopwatch.ElapsedMilliseconds + "ms" });
         }
     }
 }

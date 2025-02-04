@@ -1,4 +1,4 @@
-﻿namespace Injact.Godot;
+﻿namespace Injact.Godot.Injection;
 
 public abstract partial class NodeInstaller : Node, IInstaller
 {

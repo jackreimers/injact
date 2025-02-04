@@ -81,7 +81,10 @@ public interface IDiContainer
     /// <param name="requestedType">The type to be resolved.</param>
     /// <param name="requestingType">The type of the object requesting an instance of this type.</param>
     /// <param name="throwOnNotFound">If true, an exception will be thrown if the type is not found.</param>
-    public object? Resolve(Type requestedType, Type requestingType, bool throwOnNotFound);
+    public object? Resolve(
+        Type requestedType,
+        Type requestingType,
+        bool throwOnNotFound);
 
     /// <summary>
     /// Resolve a type from the container.
@@ -96,7 +99,10 @@ public interface IDiContainer
     /// <param name="requestedType">The type to be resolved.</param>
     /// <param name="requestingObject">The object requesting an instance of this type.</param>
     /// <param name="throwOnNotFound">If true, an exception will be thrown if the type is not found.</param>
-    public object? Resolve(Type requestedType, object requestingObject, bool throwOnNotFound);
+    public object? Resolve(
+        Type requestedType,
+        object requestingObject,
+        bool throwOnNotFound);
 
     /// <summary>
     /// Add options from a JSON file to the container.
@@ -120,15 +126,13 @@ public interface IDiContainer
     /// </summary>
     /// <param name="requestedType">The type to be created.</param>
     /// <param name="deferInitialisation">
-    /// If true and the object implements <see cref="ILifecycleObject"/>, the container will
+    /// If true and the object implements <see cref="ILifecycleObject" />, the container will
     /// not call Awake or Start.
     /// </param>
-    /// <param name="throwOnNotFound">If true, an exception will be thrown if the type is unable to be created.</param>
     /// <param name="arguments">Arguments to be passed to the constructor of the created object.</param>
     /// <remarks>It's recommended to use a factory instead of calling this method directly.</remarks>
     public object Create(
         Type requestedType,
         bool deferInitialisation = false,
-        bool throwOnNotFound = false,
         params object[] arguments);
 }

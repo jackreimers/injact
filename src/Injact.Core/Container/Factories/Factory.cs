@@ -16,29 +16,48 @@ public sealed class Factory<TInterface> : IFactory<TInterface>
 
     public TInterface Create(params object[] arguments)
     {
-        return (TInterface)_container.Create(typeof(TInterface), false, true, arguments);
+        return (TInterface)_container.Create(
+            typeof(TInterface),
+            false,
+            true,
+            arguments);
     }
 
     public TInterface Create(bool deferInitialisation, params object[] arguments)
     {
-        return (TInterface)_container.Create(typeof(TInterface), deferInitialisation, true, arguments);
+        return (TInterface)_container.Create(
+            typeof(TInterface),
+            deferInitialisation,
+            true,
+            arguments);
     }
 
     public TInterface Create<TConcrete>(bool deferInitialisation = false)
         where TConcrete : class, TInterface
     {
-        return (TInterface)_container.Create(typeof(TConcrete), deferInitialisation, true);
+        return (TInterface)_container.Create(
+            typeof(TConcrete),
+            deferInitialisation,
+            true);
     }
 
     public TInterface Create<TConcrete>(params object[] arguments)
         where TConcrete : class, TInterface
     {
-        return (TInterface)_container.Create(typeof(TConcrete), false, true, arguments);
+        return (TInterface)_container.Create(
+            typeof(TConcrete),
+            false,
+            true,
+            arguments);
     }
 
     public TInterface Create<TConcrete>(bool deferInitialisation, params object[] arguments)
         where TConcrete : class, TInterface
     {
-        return (TInterface)_container.Create(typeof(TConcrete), deferInitialisation, true, arguments);
+        return (TInterface)_container.Create(
+            typeof(TConcrete),
+            deferInitialisation,
+            true,
+            arguments);
     }
 }

@@ -1,8 +1,4 @@
-﻿using Injact.Core.Container;
-using Injact.Core.Container.Components;
-using Injact.Core.Container.Exceptions;
-
-namespace Injact.Tests;
+﻿namespace Injact.Tests;
 
 public class TestsBindingObjects
 {
@@ -11,8 +7,8 @@ public class TestsBindingObjects
     {
         var container = new DiContainer();
 
-        var resolvedContainer = container.Resolve<IDiContainer>(typeof(Consumer));
-        var resolvedInjector = container.Resolve<IDependencyInjector>(typeof(Consumer));
+        var resolvedContainer = container.Resolve<DiContainer>(typeof(Consumer));
+        var resolvedInjector = container.Resolve<Injector>(typeof(Consumer));
 
         Assert.NotNull(resolvedContainer);
         Assert.NotNull(resolvedInjector);
@@ -22,9 +18,9 @@ public class TestsBindingObjects
     public void Bind_InterfaceToContainer_ReturnsInstanceForInterface()
     {
         var container = new DiContainer();
-        container.Bind<Interface1, Class1>();
+        container.Bind<IInterface, Class1>();
 
-        var resolved = container.Resolve<Interface1>(typeof(Consumer));
+        var resolved = container.Resolve<IInterface>(typeof(Consumer));
 
         Assert.NotNull(resolved);
     }
